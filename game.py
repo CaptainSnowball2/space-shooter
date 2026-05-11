@@ -14,9 +14,13 @@ load3S=pygame.transform.scale(load3,(60,60))
 load2R=pygame.transform.rotate(load2S,270)
 load3R=pygame.transform.rotate(load3S,90)
 YS=pygame.Rect(248,300,60,60)
-RS=pygame.Rect(753,300,60,60)
+RS=pygame.Rect(692,300,60,60)
 shoot=pygame.mixer.Sound("space shooter/images/Gun+Silencer.mp3")
+shot=pygame.mixer.Sound("space shooter/images/Grenade+1.mp3")
 YB=[]
+RB=[]
+RH=10
+YH=10
 def YR():
     if keys_pressed[pygame.K_w] and YS.y>0:
         YS.y-=2.5
@@ -44,9 +48,10 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_KP_0:
+            if event.key == pygame.K_RCTRL:
                 shoot.play()
-                bullet2=pygame.Rect(RS.x,RS.y+25,20,10)
+                bullet2=pygame.Rect(RS.x-20,RS.y+25,20,10)
+                RB.append(bullet2)
             if event.key == pygame.K_SPACE:
                 shoot.play() 
                 bullet=pygame.Rect(YS.x+60,YS.y+25,20,10)
@@ -56,12 +61,37 @@ while True:
     RR()
     screen.blit(load3R,YS)
     screen.blit(load2R,RS)
-    Ytext=font1.render("health ",True,"white")
-    Rtext=font1.render("health ",True,"white")
+    Ytext=font1.render("health "+str(YH),True,"white")
+    Rtext=font1.render("health "+str(RH),True,"white")
     screen.blit(Ytext,(10,10))  
     screen.blit(Rtext,(860,10)) 
     for bullet in YB:
         pygame.draw.rect(screen,"Yellow",bullet)
         bullet.x+=2
+        if bullet.colliderect(RS):
+            RH-=1
+            YB.remove(bullet)
+            shot.play()
+    if YH<=0:
+        screen.fill("red")
+        Rwin=font1.render("Red wins",True,"black")
+        screen.blit(Rwin,(500,300))
+        pygame.display.update()
+        pygame.time.delay(3000)
+        pygame.quit
+    for bullet in RB:
+        pygame.draw.rect(screen,"red",bullet)
+        bullet.x-=3
+        if bullet.colliderect(YS):
+            YH-=1
+            RB.remove(bullet)
+            shot.play()
+    if RH<=0:
+        screen.fill("Yellow")
+        Ywin=font1.render("Yellow wins",True,"black")
+        screen.blit(Ywin,(500,300))
+        pygame.display.update()
+        pygame.time.delay(3000)
+        pygame.quit()
 
     pygame.display.update()
